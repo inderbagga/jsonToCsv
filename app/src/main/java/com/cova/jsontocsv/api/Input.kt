@@ -1,4 +1,4 @@
-package com.cova.jsontocsv.data.model
+package com.cova.jsontocsv.api
 
 import com.google.gson.annotations.SerializedName
 

@@ -12,11 +12,3 @@ object ConnectivityUtil {
         return activeNetwork?.isConnectedOrConnecting == true
     }
 }
-
-fun <T> iterate(i: Iterator<T>): Iterable<T>? {
-    return object : Iterable<T> {
-        override fun iterator(): Iterator<T> {
-            return i
-        }
-    }
-}
