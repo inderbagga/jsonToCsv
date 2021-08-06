@@ -18,6 +18,7 @@ import com.androidnetworking.common.Priority
 import com.androidnetworking.error.ANError
 import com.androidnetworking.interfaces.JSONObjectRequestListener
 import com.cova.jsontocsv.api.Api
+import com.cova.jsontocsv.data.model.Data
 import com.cova.jsontocsv.data.model.DataWrapper
 import com.cova.jsontocsv.data.model.Input
 import com.cova.jsontocsv.utils.ConnectivityUtil.isConnected
@@ -98,7 +99,7 @@ class MainActivity : AppCompatActivity() {
 
                                     textView.text = "${dataWrapper.data.size} records have been found."
 
-                                    saveCsv(it.getJSONArray("data"))
+                                    this@MainActivity.saveCsv(dataWrapper.data,it.getJSONArray("data"))
                                 }
                                 else -> {
                                     textView.text =
@@ -123,7 +124,7 @@ class MainActivity : AppCompatActivity() {
             })
     }
 
-    private fun saveCsv(jsonArray: JSONArray) {
+    private fun saveCsv(records: List<Data>, jsonArray: JSONArray) {
 
         var CSV_HEADER=""
 
@@ -145,7 +146,517 @@ class MainActivity : AppCompatActivity() {
                 buffer?.apply {
                     append('\n')
                     Log.e(TAG,"initial newline")
-                    (0 until jsonArray.length()).forEach { i ->
+
+                    for (record in records) {
+
+                        if(record.rOWNUM.isEmpty()) {
+                            append("NA")
+                        } else append(record.rOWNUM)
+                        append(',')
+
+                        if(record.row_Id.isEmpty()) {
+                            append("NA")
+                        } else append(record.row_Id)
+                        append(',')
+
+                        if(record.log_date.isEmpty()) {
+                            append("NA")
+                        } else append(record.log_date)
+                        append(',')
+
+                        if(record.patient_name.isEmpty()) {
+                            append("NA")
+                        } else append(record.patient_name)
+                        append(',')
+
+                        if(record.reinfection_YN.isEmpty()) {
+                            append("NA")
+                        } else append(record.reinfection_YN)
+                        append(',')
+
+                        if(record.patient_reinfection_id.isEmpty()) {
+                            append("NA")
+                        } else append(record.patient_reinfection_id)
+                        append(',')
+
+                        if(record.patient_month.isEmpty()) {
+                            append("NA")
+                        } else append(record.patient_month)
+                        append(',')
+
+                        if(record.date_of_reinfection.isEmpty()) {
+                            append("NA")
+                        } else append(record.date_of_reinfection)
+                        append(',')
+
+                        if(record.patient_mobile.isEmpty()) {
+                            append("NA")
+                        } else append(record.patient_mobile)
+                        append(',')
+
+                        if(record.patient_father_name.isEmpty()) {
+                            append("NA")
+                        } else append(record.patient_father_name)
+                        append(',')
+
+                        if(record.patient_state_id.isEmpty()) {
+                            append("NA")
+                        } else append(record.patient_state_id)
+                        append(',')
+
+                        if(record.patient_district_id.isEmpty()) {
+                            append("NA")
+                        } else append(record.patient_district_id)
+                        append(',')
+
+                        if(record.patient_occupation_id.isEmpty()) {
+                            append("NA")
+                        } else append(record.patient_occupation_id)
+                        append(',')
+
+                        if(record.region_id.isEmpty()) {
+                            append("NA")
+                        } else append(record.region_id)
+                        append(',')
+
+                        if(record.city_Id.isEmpty()) {
+                            append("NA")
+                        } else append(record.city_Id)
+                        append(',')
+
+                        if(record.city_others.isEmpty()) {
+                            append("NA")
+                        } else append(record.city_others)
+                        append(',')
+
+                        if(record.tehsil_id.isEmpty()) {
+                            append("NA")
+                        } else append(record.tehsil_id)
+                        append(',')
+
+                        if(record.village_id.isEmpty()) {
+                            append("NA")
+                        } else append(record.village_id)
+                        append(',')
+
+                        if(record.village_others.isEmpty()) {
+                            append("NA")
+                        } else append(record.village_others)
+                        append(',')
+
+                        if(record.patient_address.isEmpty()) {
+                            append("NA")
+                        } else append(record.patient_address)
+                        append(',')
+
+                        if(record.patient_gender_id.isEmpty()) {
+                            append("NA")
+                        } else append(record.patient_gender_id)
+                        append(',')
+
+                        if(record.patient_nationality_id.isEmpty()) {
+                            append("NA")
+                        } else append(record.patient_nationality_id)
+                        append(',')
+
+                        if(record.age.isEmpty()) {
+                            append("NA")
+                        } else append(record.age)
+                        append(',')
+
+                        if(record.patient_age_in.isEmpty()) {
+                            append("NA")
+                        } else append(record.patient_age_in)
+                        append(',')
+
+                        if(record.aadhaar.isEmpty()) {
+                            append("NA")
+                        } else append(record.aadhaar)
+                        append(',')
+
+                        if(record.passport.isEmpty()) {
+                            append("NA")
+                        } else append(record.passport)
+                        append(',')
+
+                        if(record.recieved_covidvaccine.isEmpty()) {
+                            append("NA")
+                        } else append(record.recieved_covidvaccine)
+                        append(',')
+
+                        if(record.patient_vaccinetype.isEmpty()) {
+                            append("NA")
+                        } else append(record.patient_vaccinetype)
+                        append(',')
+
+                        if(record.date_of_vaccine_dose_first.isEmpty()) {
+                            append("NA")
+                        } else append(record.date_of_vaccine_dose_first)
+                        append(',')
+
+                        if(record.br_spicemen_model.isEmpty()) {
+                            append("NA")
+                        } else append(record.br_spicemen_model)
+                        append(',')
+
+                        if(record.date_of_spicemen_collection.isEmpty()) {
+                            append("NA")
+                        } else append(record.date_of_spicemen_collection)
+                        append(',')
+
+                        if(record.spicemen_sample.isEmpty()) {
+                            append("NA")
+                        } else append(record.spicemen_sample)
+                        append(',')
+
+                        if(record.patient_zone_id.isEmpty()) {
+                            append("NA")
+                        } else append(record.patient_zone_id)
+                        append(',')
+
+                        if(record.cat_id.isEmpty()) {
+                            append("NA")
+                        } else append(record.cat_id)
+                        append(',')
+
+                        if(record.patient_status.isEmpty()) {
+                            append("NA")
+                        } else append(record.patient_status)
+                        append(',')
+
+                        if(record.patient_lab_confirmed.isEmpty()) {
+                            append("NA")
+                        } else append(record.patient_lab_confirmed)
+                        append(',')
+
+                        if(record.br_symptoms_model.isEmpty()) {
+                            append("NA")
+                        } else append(record.br_symptoms_model)
+                        append(',')
+
+                        if(record.symptoms_others.isEmpty()) {
+                            append("NA")
+                        } else append(record.symptoms_others)
+                        append(',')
+
+                        if(record.date_of_onset_of_first_symptom.isEmpty()) {
+                            append("NA")
+                        } else append(record.date_of_onset_of_first_symptom)
+                        append(',')
+
+                        if(record.patient_hospitalized_yn.isEmpty()) {
+                            append("NA")
+                        } else append(record.patient_hospitalized_yn)
+                        append(',')
+
+                        if(record.date_of_hospitalisation.isEmpty()) {
+                            append("NA")
+                        } else append(record.date_of_hospitalisation)
+                        append(',')
+
+                        if(record.patient_hos_state_id.isEmpty()) {
+                            append("NA")
+                        } else append(record.patient_hos_state_id)
+                        append(',')
+
+                        if(record.patient_hos_district_id.isEmpty()) {
+                            append("NA")
+                        } else append(record.patient_hos_district_id)
+                        append(',')
+
+                        if(record.hospital_name.isEmpty()) {
+                            append("NA")
+                        } else append(record.hospital_name)
+                        append(',')
+
+                        if(record.test_type_id.isEmpty()) {
+                            append("NA")
+                        } else append(record.test_type_id)
+                        append(',')
+
+                        if(record.patient_kit_type_antigen_id.isEmpty()) {
+                            append("NA")
+                        } else append(record.patient_kit_type_antigen_id)
+                        append(',')
+
+                        if(record.antigenkit_spicemen_sample.isEmpty()) {
+                            append("NA")
+                        } else append(record.antigenkit_spicemen_sample)
+                        append(',')
+
+                        if(record.patient_antigentest_result_id.isEmpty()) {
+                            append("NA")
+                        } else append(record.patient_antigentest_result_id)
+                        append(',')
+
+                        if(record.patient_antigentest_date.isEmpty()) {
+                            append("NA")
+                        } else append(record.patient_antigentest_date)
+                        append(',')
+
+                        if(record.patient_antigentest_time.isEmpty()) {
+                            append("NA")
+                        } else append(record.patient_antigentest_time)
+                        append(',')
+
+                        if(record.patient_lab_id.isEmpty()) {
+                            append("NA")
+                        } else append(record.patient_lab_id)
+                        append(',')
+
+                        if(record.is_Active.isEmpty()) {
+                            append("NA")
+                        } else append(record.is_Active)
+                        append(',')
+
+                        if(record.is_Deleted.isEmpty()) {
+                            append("NA")
+                        } else append(record.is_Deleted)
+                        append(',')
+
+                        if(record.updated_date.isEmpty()) {
+                            append("NA")
+                        } else append(record.updated_date)
+                        append(',')
+
+                        if(record.user_Id.isEmpty()) {
+                            append("NA")
+                        } else append(record.user_Id)
+                        append(',')
+
+                        if(record.is_completed_status.isEmpty()) {
+                            append("NA")
+                        } else append(record.is_completed_status)
+                        append(',')
+
+                        if(record.is_completed_date.isEmpty()) {
+                            append("NA")
+                        } else append(record.is_completed_date)
+                        append(',')
+
+                        if(record.form_step_no.isEmpty()) {
+                            append("NA")
+                        } else append(record.form_step_no)
+                        append(',')
+
+                        if(record.srf_Id.isEmpty()) {
+                            append("NA")
+                        } else append(record.srf_Id)
+                        append(',')
+
+                        if(record.remarks.isEmpty()) {
+                            append("NA")
+                        } else append(record.remarks)
+                        append(',')
+
+                        if(record.covid19_result_egene.isEmpty()) {
+                            append("NA")
+                        } else append(record.covid19_result_egene)
+                        append(',')
+
+                        if(record.ct_value_screening.isEmpty()) {
+                            append("NA")
+                        } else append(record.ct_value_screening)
+                        append(',')
+
+                        if(record.orf1b_confirmatory.isEmpty()) {
+                            append("NA")
+                        } else append(record.orf1b_confirmatory)
+                        append(',')
+
+                        if(record.ct_value_orf1b.isEmpty()) {
+                            append("NA")
+                        } else append(record.ct_value_orf1b)
+                        append(',')
+
+                        if(record.rdrp_confirmatory.isEmpty()) {
+                            append("NA")
+                        } else append(record.rdrp_confirmatory)
+                        append(',')
+
+                        if(record.ct_value_rdrp.isEmpty()) {
+                            append("NA")
+                        } else append(record.ct_value_rdrp)
+                        append(',')
+
+                        if(record.final_result_of_sample.isEmpty()) {
+                            append("NA")
+                        } else append(record.final_result_of_sample)
+                        append(',')
+
+                        if(record.sample_rdate.isEmpty()) {
+                            append("NA")
+                        } else append(record.sample_rdate)
+                        append(',')
+
+                        if(record.date_of_vaccine_dose_second.isEmpty()) {
+                            append("NA")
+                        } else append(record.date_of_vaccine_dose_second)
+                        append(',')
+
+                        if(record.icmr_Id.isEmpty()) {
+                            append("NA")
+                        } else append(record.icmr_Id)
+                        append(',')
+
+                        if(record.repeat_sample.isEmpty()) {
+                            append("NA")
+                        } else append(record.repeat_sample)
+                        append(',')
+
+                        if(record.patient_id.isEmpty()) {
+                            append("NA")
+                        } else append(record.patient_id)
+                        append(',')
+
+                        if(record.previously_patient_icmr_Id.isEmpty()) {
+                            append("NA")
+                        } else append(record.previously_patient_icmr_Id)
+                        append(',')
+
+                        if(record.ward_id.isEmpty()) {
+                            append("NA")
+                        } else append(record.ward_id)
+                        append(',')
+
+                        if(record.localityname.isEmpty()) {
+                            append("NA")
+                        } else append(record.localityname)
+                        append(',')
+
+                        if(record.other_occupation.isEmpty()) {
+                            append("NA")
+                        } else append(record.other_occupation)
+                        append(',')
+
+                        if(record.patient_reinfection_id_name.isEmpty()) {
+                            append("NA")
+                        } else append(record.patient_reinfection_id_name)
+                        append(',')
+
+                        if(record.patient_state_id_name.isEmpty()) {
+                            append("NA")
+                        } else append(record.patient_state_id_name)
+                        append(',')
+
+                        if(record.patient_district_id_name.isEmpty()) {
+                            append("NA")
+                        } else append(record.patient_district_id_name)
+                        append(',')
+
+                        if(record.patient_occupation_id_name.isEmpty()) {
+                            append("NA")
+                        } else append(record.patient_occupation_id_name)
+                        append(',')
+
+                        if(record.region_id_name.isEmpty()) {
+                            append("NA")
+                        } else append(record.region_id_name)
+                        append(',')
+
+                        if(record.patient_village_city_name.isEmpty()) {
+                            append("NA")
+                        } else append(record.patient_village_city_name)
+                        append(',')
+
+                        if(record.tehsil_id_name.isEmpty()) {
+                            append("NA")
+                        } else append(record.tehsil_id_name)
+                        append(',')
+
+                        if(record.patient_gender_id_name.isEmpty()) {
+                            append("NA")
+                        } else append(record.patient_gender_id_name)
+                        append(',')
+
+                        if(record.patient_vaccinetype_name.isEmpty()) {
+                            append("NA")
+                        } else append(record.patient_vaccinetype_name)
+                        append(',')
+
+                        if(record.patient_zone_id_name.isEmpty()) {
+                            append("NA")
+                        } else append(record.patient_zone_id_name)
+                        append(',')
+
+                        if(record.cat_id_name.isEmpty()) {
+                            append("NA")
+                        } else append(record.cat_id_name)
+                        append(',')
+
+                        if(record.patient_hos_state_id_name.isEmpty()) {
+                            append("NA")
+                        } else append(record.patient_hos_state_id_name)
+                        append(',')
+
+                        if(record.patient_hos_district_id_name.isEmpty()) {
+                            append("NA")
+                        } else append(record.patient_hos_district_id_name)
+                        append(',')
+
+                        if(record.test_type_id_name.isEmpty()) {
+                            append("NA")
+                        } else append(record.test_type_id_name)
+                        append(',')
+
+                        if(record.lab_name.isEmpty()) {
+                            append("NA")
+                        } else append(record.lab_name)
+                        append(',')
+
+                        if(record.localityname_name.isEmpty()) {
+                            append("NA")
+                        } else append(record.localityname_name)
+                        append(',')
+
+                        if(record.totalCount.isEmpty()) {
+                            append("NA")
+                        } else append(record.totalCount)
+                        append(',')
+
+                        if(record.patient_village_city_name1.isEmpty()) {
+                            append("NA")
+                        } else append(record.patient_village_city_name1)
+                        append(',')
+
+                        if(record.lab_idsample.isEmpty()) {
+                            append("NA")
+                        } else append(record.lab_idsample)
+                        append(',')
+
+                        if(record.employee_Id.isEmpty()) {
+                            append("NA")
+                        } else append(record.employee_Id)
+                        append(',')
+
+                        if(record.user_location.isEmpty()) {
+                            append("NA")
+                        } else append(record.user_location)
+                        append(',')
+
+                        if(record.village_latitude.isEmpty()) {
+                            append("NA")
+                        } else append(record.village_latitude)
+                        append(',')
+
+                        if(record.village_longitude.isEmpty()) {
+                            append("NA")
+                        } else append(record.village_longitude)
+                        append(',')
+
+                        if(record.locality_latitude.isEmpty()) {
+                            append("NA")
+                        } else append(record.locality_latitude)
+                        append(',')
+
+                        if(record.locality_longitude.isEmpty()) {
+                            append("NA")
+                        } else append(record.locality_longitude)
+                        append('\n')
+                    }
+
+                    //start
+               /*     (0 until jsonArray.length()).forEach { i ->
                         var jsonObject = jsonArray.getJSONObject(i)
 
                         headerKeys.forEachIndexed { index, _ ->
@@ -168,7 +679,8 @@ class MainActivity : AppCompatActivity() {
                         }
                         append('\n')
                         Log.e(TAG,"for array${i} newline")
-                    }
+                    }*/
+                    //end
                 }
 
             } catch (e: Exception) {
