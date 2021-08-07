@@ -8,8 +8,8 @@ const val TOKEN="Bearer eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWct
 
 data class Input (
 
-    @SerializedName("form_status") var formStatus : String,
+    @SerializedName("form_status") var formStatus : String="C",
     @SerializedName("start_date") var startDate : String,
     @SerializedName("end_date") var endDate : String,
-    @SerializedName("user_id") var userId : String
+    @SerializedName("user_id") var userId : String="63719"
 )

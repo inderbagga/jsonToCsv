@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -104,7 +103,7 @@ class MainActivity : AppCompatActivity() {
                         }
                     } catch (e: Exception) {
                         progressBar.visibility = View.GONE
-                        textView.text = e.toString()
+                        textView.text ="fetchRtPcrData:onResponse-> \n $e.toString()"
                     }
                 }
 
@@ -113,7 +112,7 @@ class MainActivity : AppCompatActivity() {
                         progressBar.visibility = View.GONE
                         this@MainActivity.textView.text = anError?.message.toString()
                     } catch (e: Exception) {
-                        textView.text = e.toString()
+                        textView.text ="fetchRtPcrData:onError->\n $e.toString()"
                     }
                 }
             })
@@ -214,7 +213,7 @@ class MainActivity : AppCompatActivity() {
                 notify(notificationId, builder.build())
             }
         } catch (e: Exception) {
-            Log.e(TAG, "sendingNotification: $e")
+            textView.text="sendingNotification: ${e.toString()}"
         }
     }
 
@@ -271,13 +270,13 @@ class MainActivity : AppCompatActivity() {
         if(startDate.isEmpty()||endDate.isEmpty()){
             Toast.makeText(this, getString(R.string.required_dates), Toast.LENGTH_LONG).show()
         }else{
+            textView.text="Fetching records from $startDate to $endDate"
 
-            Log.e(TAG, "$startDate and $endDate")
-
-            val input=Input("C", startDate, endDate, "63719")
+            val input=Input(startDate=startDate, endDate= endDate)
 
             if(isConnected(this))
                 fetchRtPcrData(input)
+            else textView.text=getString(R.string.required_internet)
         }
     }
 

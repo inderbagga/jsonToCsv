@@ -6,6 +6,7 @@
     <string name="notify_action_share">Share</string>
     <string name="notify_content_text">TAP on VIEW | SHARE to perform next action.</string>
 
+    <string name="required_internet">Please connect with Internet and try again.</string>
     <string name="required_dates">Please select start/end dates.</string>
     <string name="required_start_date">Please select start date.</string>
 
