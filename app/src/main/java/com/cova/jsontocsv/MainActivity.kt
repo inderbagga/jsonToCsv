@@ -3,7 +3,6 @@ package com.cova.jsontocsv
 import android.app.*
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -17,9 +16,9 @@ import com.androidnetworking.AndroidNetworking
 import com.androidnetworking.common.Priority
 import com.androidnetworking.error.ANError
 import com.androidnetworking.interfaces.JSONObjectRequestListener
-import com.cova.jsontocsv.api.Api
-import com.cova.jsontocsv.api.Input
-import com.cova.jsontocsv.utils.ConnectivityUtil.isConnected
+
+import com.cova.jsontocsv.Utils.isConnected
+
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.csv.CsvMapper
@@ -28,22 +27,21 @@ import com.google.gson.Gson
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
+import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
-    private  val TAG = "MainActivity"
+    private val TAG = "MainActivity"
 
     private lateinit var progressBar: ProgressBar
     private lateinit var textView: TextView
     private lateinit var tvStartDate: TextView
     private lateinit var tvEndDate: TextView
 
-    val dateFormat = "yyyy-MM-dd"
-
-    private lateinit var calendar: Calendar
-    private lateinit var sCalendar: Calendar
+    private lateinit var calendar1: Calendar
+    private lateinit var calendar2: Calendar
 
     private var year = 0
     private var month = 0
@@ -51,9 +49,6 @@ class MainActivity : AppCompatActivity() {
 
     var startDate=""
     var endDate=""
-
-    private val channelId="2021"
-    private val notificationId=1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,18 +63,18 @@ class MainActivity : AppCompatActivity() {
         textView=findViewById(R.id.textView)
         tvStartDate=findViewById(R.id.startDate)
         tvEndDate=findViewById(R.id.endDate)
-        calendar = Calendar.getInstance()
-        sCalendar=calendar
+        calendar1 = Calendar.getInstance()
+        calendar2=calendar1
     }
 
     private fun fetchRtPcrData(input: Input) {
         progressBar.visibility= View.VISIBLE
 
-        AndroidNetworking.post(Api.ENDPOINT + Api.URI_RTPCR_DATA)
+        AndroidNetworking.post(ENDPOINT + URI_RTPCR_DATA)
             .addByteBody(Gson().toJson(input).toByteArray())
             .addHeaders(
-                    "Authorization",
-                    Api.TOKEN
+                "Authorization",
+                TOKEN
             )
             .setContentType("application/json")
             .setPriority(Priority.HIGH)
@@ -94,15 +89,16 @@ class MainActivity : AppCompatActivity() {
                             when (it.getString("response")) {
 
                                 "1" -> {
-                                    val jsonArray=it.getJSONArray("data")
+                                    val jsonArray = it.getJSONArray("data")
 
-                                    textView.text = "${jsonArray.length()} records have been found."
+                                    textView.text =
+                                        "${jsonArray.length()} records have been found."
 
-                                    this@MainActivity.saveCsv(jsonArray)
+                                    this@MainActivity.generateCsv(jsonArray)
                                 }
                                 else -> {
                                     textView.text =
-                                            response?.getString("sys_message").toString()
+                                        response?.getString("sys_message").toString()
                                 }
                             }
                         }
@@ -115,7 +111,7 @@ class MainActivity : AppCompatActivity() {
                 override fun onError(anError: ANError?) {
                     try {
                         progressBar.visibility = View.GONE
-                        textView.text = anError?.message.toString()
+                        this@MainActivity.textView.text = anError?.message.toString()
                     } catch (e: Exception) {
                         textView.text = e.toString()
                     }
@@ -123,7 +119,7 @@ class MainActivity : AppCompatActivity() {
             })
     }
 
-    private fun saveCsv(jsonArray: JSONArray) {
+    private fun generateCsv(jsonArray: JSONArray) {
 
         val thread:Thread=Thread {
 
@@ -131,54 +127,88 @@ class MainActivity : AppCompatActivity() {
 
             val csvSchemaBuilder = CsvSchema.builder()
             val firstObject = jsonTree.elements().next()
-            firstObject.fieldNames().forEach { fieldName: String? -> csvSchemaBuilder.addColumn(fieldName) }
+            firstObject.fieldNames().forEach { fieldName: String? -> csvSchemaBuilder.addColumn(
+                fieldName
+            ) }
             val csvSchema = csvSchemaBuilder.build().withHeader()
 
             val date=Date().toGMTString().replace(":", "_").substring(0, 10)
-            val fileNAME="Patient_List_${date.replace(" ", "_")}.csv"
+            val fileName="Patient_List_${date.replace(" ", "_")}.csv"
 
             val csvMapper = CsvMapper()
             csvMapper.writerFor(JsonNode::class.java)
-                    .with(csvSchema)
-                    .writeValue(File(filesDir,fileNAME), jsonTree)
+                .with(csvSchema)
+                .writeValue(File(filesDir, fileName), jsonTree)
 
-            exportingCsv( fileNAME)
-            sendingNotification(fileNAME)
+            sendingNotification(fileName)
         }
         thread.start()
-    }
-
-    private fun exportingCsv( fileName: String) {
-
-        try {
-
-            val context: Context = applicationContext
-            val filePath = File(filesDir, fileName)
-            val path: Uri = FileProvider.getUriForFile(
-                    context,
-                    "com.cova.jsontocsv.fileprovider",
-                    filePath
-            )
-            val fileIntent = Intent(Intent.ACTION_SEND)
-            fileIntent.type = "text/csv"
-            fileIntent.putExtra(Intent.EXTRA_SUBJECT, "Patient List")
-            fileIntent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-            fileIntent.putExtra(Intent.EXTRA_STREAM, path)
-            startActivity(Intent.createChooser(fileIntent, "Sharing $fileName"))
-        } catch (e: Exception) {
-            Log.e(TAG, "exportingCsv: $e")
-        }
     }
 
     private fun sendingNotification(fileName: String) {
         try {
 
+            val context: Context = applicationContext
+            val authority = BuildConfig.APPLICATION_ID + ".provider"
+
+            val shareFilePath = File(filesDir, fileName)
+
+            val out: FileOutputStream = openFileOutput("exported$fileName", Context.MODE_PRIVATE)
+            out.write(shareFilePath.readBytes())
+            out.close()
+
+            val viewFilePath = File(filesDir, "exported$fileName")
+
+            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                type= "text/csv"
+                putExtra(Intent.EXTRA_SUBJECT, "Patient List")
+                flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(
+                    context,
+                    authority,
+                    shareFilePath
+                ))
+            }
+
+            val viewIntent = Intent(Intent.ACTION_VIEW).apply {
+                flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                setDataAndType( FileProvider.getUriForFile(
+                    context,
+                    authority,
+                    viewFilePath
+                ), "text/csv")
+            }
+
+            val pendingShareIntent = PendingIntent.getActivity(
+                context, 0, Intent.createChooser(
+                    shareIntent,
+                    "Sharing $fileName"
+                ),
+                PendingIntent.FLAG_UPDATE_CURRENT
+            )
+
+            val pendingViewIntent = PendingIntent.getActivity(
+                context, 0, viewIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT
+            )
+
             var builder = NotificationCompat.Builder(this, channelId)
                 .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle("Ready to Export!")
-                .setContentText("$fileName has been generated..")
+                .setContentTitle(fileName)
+                .setContentText(getString(R.string.notify_content_text))
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setAutoCancel(true)
+                .addAction(
+                    android.R.drawable.ic_menu_view,
+                    getString(R.string.notify_action_view),
+                    pendingViewIntent
+                )
+                .addAction(
+                    android.R.drawable.ic_menu_share,
+                    getString(R.string.notify_action_share),
+                    pendingShareIntent
+                )
 
             with(NotificationManagerCompat.from(this)) {
                 notify(notificationId, builder.build())
@@ -190,56 +220,56 @@ class MainActivity : AppCompatActivity() {
 
     fun selectStartDate(view: View) {
 
-        year = calendar.get(Calendar.YEAR)
-        month = calendar.get(Calendar.MONTH)
-        day = calendar.get(Calendar.DAY_OF_MONTH)
+        year = calendar1.get(Calendar.YEAR)
+        month = calendar1.get(Calendar.MONTH)
+        day = calendar1.get(Calendar.DAY_OF_MONTH)
 
-        val dialog = DatePickerDialog(this, { _, year, month, day_of_month ->
-            calendar[Calendar.YEAR] = year
-            calendar[Calendar.MONTH] = month
-            calendar[Calendar.DAY_OF_MONTH] = day_of_month
+        val dialog1 = DatePickerDialog(this, { _, year, month, day_of_month ->
+            calendar1[Calendar.YEAR] = year
+            calendar1[Calendar.MONTH] = month
+            calendar1[Calendar.DAY_OF_MONTH] = day_of_month
 
             val sdf = SimpleDateFormat(dateFormat, Locale.getDefault())
-            startDate = sdf.format(calendar.time)
+            startDate = sdf.format(calendar1.time)
             tvStartDate.text = startDate
-            sCalendar = calendar
-        }, calendar[Calendar.YEAR], calendar[Calendar.MONTH], calendar[Calendar.DAY_OF_MONTH])
-        calendar.add(Calendar.YEAR, 0)
-        dialog.datePicker.maxDate = calendar.timeInMillis
-        dialog.show()
+            calendar2 = calendar1
+        }, calendar1[Calendar.YEAR], calendar1[Calendar.MONTH], calendar1[Calendar.DAY_OF_MONTH])
+        calendar1.add(Calendar.YEAR, 0)
+        dialog1.datePicker.maxDate = calendar1.timeInMillis
+        dialog1.show()
     }
 
     fun selectEndDate(view: View) {
 
         if (startDate.isEmpty())
         {
-            Toast.makeText(this, "Please select start date.", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, getString(R.string.required_start_date), Toast.LENGTH_LONG).show()
             return
         }
 
-        year = sCalendar.get(Calendar.YEAR)
-        month = sCalendar.get(Calendar.MONTH)
-        day = sCalendar.get(Calendar.DAY_OF_MONTH)
+        year = calendar2.get(Calendar.YEAR)
+        month = calendar2.get(Calendar.MONTH)
+        day = calendar2.get(Calendar.DAY_OF_MONTH)
 
-        val edialog = DatePickerDialog(this, { _, year, month, day_of_month ->
-            sCalendar[Calendar.YEAR] = year
-            sCalendar[Calendar.MONTH] = month
-            sCalendar[Calendar.DAY_OF_MONTH] = day_of_month
+        val dialog2 = DatePickerDialog(this, { _, year, month, day_of_month ->
+            calendar2[Calendar.YEAR] = year
+            calendar2[Calendar.MONTH] = month
+            calendar2[Calendar.DAY_OF_MONTH] = day_of_month
 
             val sdf = SimpleDateFormat(dateFormat, Locale.getDefault())
-            endDate = sdf.format(sCalendar.time)
+            endDate = sdf.format(calendar2.time)
             tvEndDate.text = endDate
-        }, sCalendar[Calendar.YEAR], sCalendar[Calendar.MONTH], sCalendar[Calendar.DAY_OF_MONTH])
-        sCalendar.add(Calendar.YEAR, 0)
-        edialog.datePicker.minDate=sCalendar.timeInMillis
-        edialog.datePicker.maxDate = Calendar.getInstance().timeInMillis
-        edialog.show()
+        }, calendar2[Calendar.YEAR], calendar2[Calendar.MONTH], calendar2[Calendar.DAY_OF_MONTH])
+        calendar2.add(Calendar.YEAR, 0)
+        dialog2.datePicker.minDate=calendar2.timeInMillis
+        dialog2.datePicker.maxDate = Calendar.getInstance().timeInMillis
+        dialog2.show()
     }
 
     fun onSubmit(view: View) {
 
         if(startDate.isEmpty()||endDate.isEmpty()){
-            Toast.makeText(this, "Please select start/end dates.", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, getString(R.string.required_dates), Toast.LENGTH_LONG).show()
         }else{
 
             Log.e(TAG, "$startDate and $endDate")
@@ -254,8 +284,8 @@ class MainActivity : AppCompatActivity() {
     private fun createNotificationChannel() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val name = "Channel Name"
-            val descriptionText = "Channel Description"
+            val name = getString(R.string.app_name)
+            val descriptionText = getString(R.string.app_description)
             val importance = NotificationManager.IMPORTANCE_DEFAULT
             val channel = NotificationChannel(channelId, name, importance).apply {
                 description = descriptionText

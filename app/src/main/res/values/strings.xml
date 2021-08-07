@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">JsonToCsv</string>
+    <string name="app_description">Just another sample application!</string>
+
+    <string name="notify_action_view">View</string>
+    <string name="notify_action_share">Share</string>
+    <string name="notify_content_text">TAP on VIEW | SHARE to perform next action.</string>
+
+    <string name="required_dates">Please select start/end dates.</string>
+    <string name="required_start_date">Please select start date.</string>
+
 </resources>
