@@ -1,86 +1,117 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@android:color/white"
+    android:orientation="vertical">
 
-    <Button
-        android:layout_width="wrap_content"
-        android:id="@+id/bStartDate"
+    <FrameLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        android:layout_margin="20dp"
         android:onClick="selectStartDate"
-        android:text="START DATE"
-        />
+        android:layout_marginTop="@dimen/_10sdp"
+        android:background="@drawable/bg_dashboard_stats">
 
-    <TextView
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?selectableItemBackgroundBorderless"
+            android:padding="@dimen/_10sdp">
+
+            <TextView
+                android:id="@+id/startDate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:text="@string/select_start_date"
+                android:textColor="@color/colorBackGrey5"
+                android:textSize="@dimen/_13sdp" />
+
+            <ImageView
+                android:layout_width="@dimen/_15sdp"
+                android:layout_height="@dimen/_15sdp"
+                android:layout_gravity="end|center_vertical"
+                android:contentDescription="@string/select_start_date"
+                android:src="@drawable/ic_down"
+                app:tint="@color/colorBackGrey5" />
+        </FrameLayout>
+
+    </FrameLayout>
+
+    <FrameLayout
         android:layout_width="match_parent"
-        android:id="@+id/startDate"
-        app:layout_constraintHorizontal_weight=".5"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/bStartDate"
-        app:layout_constraintLeft_toLeftOf="parent"
-        android:layout_margin="20dp"
-        android:text="NA"
-        android:gravity="left"
-        />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_margin="20dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        android:id="@+id/bEndDate"
         android:onClick="selectEndDate"
-        android:text="END DATE"
-        />
+        android:layout_marginTop="@dimen/_10sdp"
+        android:background="@drawable/bg_dashboard_stats">
 
-    <TextView
-        android:layout_width="match_parent"
-        app:layout_constraintHorizontal_weight=".5"
-        android:id="@+id/endDate"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/bEndDate"
-        app:layout_constraintRight_toRightOf="parent"
-        android:layout_margin="20dp"
-        android:text="NA"
-        android:gravity="right"
-        />
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?selectableItemBackgroundBorderless"
+            android:padding="@dimen/_10sdp">
 
-    <Button
+            <TextView
+                android:id="@+id/endDate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:text="@string/select_end_date"
+                android:textColor="@color/colorBackGrey5"
+                android:textSize="@dimen/_13sdp" />
+
+            <ImageView
+                android:layout_width="@dimen/_15sdp"
+                android:layout_height="@dimen/_15sdp"
+                android:layout_gravity="end|center_vertical"
+                android:contentDescription="@string/select_end_date"
+                android:src="@drawable/ic_down"
+                app:tint="@color/colorBackGrey5" />
+        </FrameLayout>
+
+    </FrameLayout>
+
+    <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_margin="20dp"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/startDate"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        android:id="@+id/submit"
+        android:layout_gravity="center"
+        android:layout_marginTop="@dimen/_20sdp"
+        android:background="@drawable/bg_btn"
+        android:baselineAligned="false"
+        android:orientation="horizontal"
         android:onClick="onSubmit"
-        android:text="Submit"
-        />
+        android:weightSum="2">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="?selectableItemBackgroundBorderless"
+            android:paddingStart="@dimen/_20sdp"
+            android:paddingTop="@dimen/_10sdp"
+            android:paddingEnd="@dimen/_20sdp"
+            android:paddingBottom="@dimen/_10sdp"
+            android:text="@string/submit"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/_16sdp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
 
     <ProgressBar
         android:id="@+id/progressBar"
+        android:layout_margin="@dimen/_20sdp"
+        android:layout_gravity="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        />
 
     <TextView
         android:id="@+id/textView"
+        android:layout_gravity="center"
+        android:layout_margin="@dimen/_20sdp"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_height="wrap_content" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

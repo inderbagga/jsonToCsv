@@ -3,7 +3,6 @@ package com.cova.jsontocsv
 import android.app.*
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.*
@@ -15,8 +14,6 @@ import com.androidnetworking.AndroidNetworking
 import com.androidnetworking.common.Priority
 import com.androidnetworking.error.ANError
 import com.androidnetworking.interfaces.JSONObjectRequestListener
-
-import com.cova.jsontocsv.Utils.isConnected
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -54,7 +51,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         initializeUI()
-        createNotificationChannel()
+        createNotificationChannel(this)
     }
 
     private fun initializeUI() {
@@ -62,6 +59,7 @@ class MainActivity : AppCompatActivity() {
         textView=findViewById(R.id.textView)
         tvStartDate=findViewById(R.id.startDate)
         tvEndDate=findViewById(R.id.endDate)
+
         calendar1 = Calendar.getInstance()
         calendar2=calendar1
     }
@@ -70,64 +68,62 @@ class MainActivity : AppCompatActivity() {
         progressBar.visibility= View.VISIBLE
 
         AndroidNetworking.post(ENDPOINT + URI_RTPCR_DATA)
-            .addByteBody(Gson().toJson(input).toByteArray())
-            .addHeaders(
-                "Authorization",
-                TOKEN
-            )
-            .setContentType("application/json")
-            .setPriority(Priority.HIGH)
-            .build()
-            .getAsJSONObject(object : JSONObjectRequestListener {
-                override fun onResponse(response: JSONObject?) {
-                    try {
-                        progressBar.visibility = View.GONE
+                .addByteBody(Gson().toJson(input).toByteArray())
+                .addHeaders(
+                        "Authorization",
+                        "Bearer "+BuildConfig.API_TOKEN
+                )
+                .setContentType("application/json")
+                .setPriority(Priority.HIGH)
+                .build()
+                .getAsJSONObject(object : JSONObjectRequestListener {
+                    override fun onResponse(response: JSONObject?) {
+                        try {
+                            progressBar.visibility = View.GONE
 
-                        response?.let {
+                            response?.let {
 
-                            when (it.getString("response")) {
+                                when (it.getString("response")) {
 
-                                "1" -> {
-                                    val jsonArray = it.getJSONArray("data")
+                                    "1" -> {
+                                        val jsonArray = it.getJSONArray("data")
 
-                                    textView.text =
-                                        "${jsonArray.length()} records have been found."
+                                        textView.text =
+                                                "${jsonArray.length()} records have been found."
 
-                                    this@MainActivity.generateCsv(jsonArray)
-                                }
-                                else -> {
-                                    textView.text =
-                                        response?.getString("sys_message").toString()
+                                        this@MainActivity.generateCsv(jsonArray)
+                                    }
+                                    else -> {
+                                        textView.text =
+                                                response?.getString("sys_message").toString()
+                                    }
                                 }
                             }
+                        } catch (e: Exception) {
+                            progressBar.visibility = View.GONE
+                            textView.text ="fetchRtPcrData:onResponse-> \n $e.toString()"
                         }
-                    } catch (e: Exception) {
-                        progressBar.visibility = View.GONE
-                        textView.text ="fetchRtPcrData:onResponse-> \n $e.toString()"
                     }
-                }
 
-                override fun onError(anError: ANError?) {
-                    try {
+                    override fun onError(anError: ANError?) = try {
                         progressBar.visibility = View.GONE
                         this@MainActivity.textView.text = anError?.message.toString()
                     } catch (e: Exception) {
                         textView.text ="fetchRtPcrData:onError->\n $e.toString()"
                     }
-                }
-            })
+                })
     }
 
     private fun generateCsv(jsonArray: JSONArray) {
 
-        val thread:Thread=Thread {
+        val thread=Thread {
 
             val jsonTree = ObjectMapper().readTree(jsonArray.toString())
 
             val csvSchemaBuilder = CsvSchema.builder()
             val firstObject = jsonTree.elements().next()
             firstObject.fieldNames().forEach { fieldName: String? -> csvSchemaBuilder.addColumn(
-                fieldName
+                    fieldName
             ) }
             val csvSchema = csvSchemaBuilder.build().withHeader()
 
@@ -136,8 +132,8 @@ class MainActivity : AppCompatActivity() {
 
             val csvMapper = CsvMapper()
             csvMapper.writerFor(JsonNode::class.java)
-                .with(csvSchema)
-                .writeValue(File(filesDir, fileName), jsonTree)
+                    .with(csvSchema)
+                    .writeValue(File(filesDir, fileName), jsonTree)
 
             sendingNotification(fileName)
         }
@@ -163,9 +159,9 @@ class MainActivity : AppCompatActivity() {
                 putExtra(Intent.EXTRA_SUBJECT, "Patient List")
                 flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
                 putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(
-                    context,
-                    authority,
-                    shareFilePath
+                        context,
+                        authority,
+                        shareFilePath
                 ))
             }
 
@@ -173,51 +169,57 @@ class MainActivity : AppCompatActivity() {
                 flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 setDataAndType( FileProvider.getUriForFile(
-                    context,
-                    authority,
-                    viewFilePath
+                        context,
+                        authority,
+                        viewFilePath
                 ), "text/csv")
             }
 
             val pendingShareIntent = PendingIntent.getActivity(
-                context, 0, Intent.createChooser(
+                    context, 0, Intent.createChooser(
                     shareIntent,
                     "Sharing $fileName"
-                ),
-                PendingIntent.FLAG_UPDATE_CURRENT
+            ),
+                    PendingIntent.FLAG_UPDATE_CURRENT
             )
 
             val pendingViewIntent = PendingIntent.getActivity(
-                context, 0, viewIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT
+                    context, 0, viewIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT
             )
 
             var builder = NotificationCompat.Builder(this, channelId)
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle(fileName)
-                .setContentText(getString(R.string.notify_content_text))
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .setAutoCancel(true)
-                .addAction(
-                    android.R.drawable.ic_menu_view,
-                    getString(R.string.notify_action_view),
-                    pendingViewIntent
-                )
-                .addAction(
-                    android.R.drawable.ic_menu_share,
-                    getString(R.string.notify_action_share),
-                    pendingShareIntent
-                )
+                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setContentTitle(fileName)
+                    .setContentText(getString(R.string.notify_content_text))
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setAutoCancel(true)
+                    .addAction(
+                            android.R.drawable.ic_menu_view,
+                            getString(R.string.notify_action_view),
+                            pendingViewIntent
+                    )
+                    .addAction(
+                            android.R.drawable.ic_menu_share,
+                            getString(R.string.notify_action_share),
+                            pendingShareIntent
+                    )
 
             with(NotificationManagerCompat.from(this)) {
                 notify(notificationId, builder.build())
             }
+
         } catch (e: Exception) {
-            textView.text="sendingNotification: ${e.toString()}"
+            runOnUiThread {
+                textView.text="sendingNotification: ${e.toString()}"
+            }
         }
     }
 
     fun selectStartDate(view: View) {
+
+        endDate=""
+        tvEndDate.text = getString(R.string.select_end_date)
 
         year = calendar1.get(Calendar.YEAR)
         month = calendar1.get(Calendar.MONTH)
@@ -234,7 +236,7 @@ class MainActivity : AppCompatActivity() {
             calendar2 = calendar1
         }, calendar1[Calendar.YEAR], calendar1[Calendar.MONTH], calendar1[Calendar.DAY_OF_MONTH])
         calendar1.add(Calendar.YEAR, 0)
-        dialog1.datePicker.maxDate = calendar1.timeInMillis
+        dialog1.datePicker.maxDate = Calendar.getInstance().timeInMillis
         dialog1.show()
     }
 
@@ -277,22 +279,6 @@ class MainActivity : AppCompatActivity() {
             if(isConnected(this))
                 fetchRtPcrData(input)
             else textView.text=getString(R.string.required_internet)
-        }
-    }
-
-    private fun createNotificationChannel() {
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val name = getString(R.string.app_name)
-            val descriptionText = getString(R.string.app_description)
-            val importance = NotificationManager.IMPORTANCE_DEFAULT
-            val channel = NotificationChannel(channelId, name, importance).apply {
-                description = descriptionText
-            }
-
-            val notificationManager: NotificationManager =
-                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
         }
     }
 }
